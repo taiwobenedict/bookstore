@@ -11,10 +11,6 @@ env/
 # Django secret key
 *.secret
 
-# Django stuff:
-db.sqlite3
-/media/
-staticfiles/
 
 # Migrations (optional)
 */migrations/*.py
