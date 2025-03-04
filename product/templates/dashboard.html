@@ -2,7 +2,67 @@
 
 {% block content %}
 
-{{form}}
+<h3 class="text-end">Books {{ books|length}}</h3>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{form}}
+
+    <button type="submit" class="btn btn-primary mt-4">Submit</button>
+
+</form>
+
+<h2 class="mt-5">Orders</h2>
+
+<table class="table mb-4">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Customer</th>
+        <th scope="col">Book</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Price</th>
+        <th scope="col">Status</th>
+        <th scope="col">Change status</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+            <tr>
+                <th scope="row">{{forloop.counter}}</th>
+                <td>{{order.customer.username}}</td>
+                <td>{{order.book.title}}</td>
+                <td>{{order.quantity}}</td>
+                <td>{{order.total_price}}</td>
+                <td>
+                    <span class="badge rounded-pill text-bg-{% if order.status == 'processing' %}warning{% elif order.status == 'shipped' %}info{% else %}success{% endif %}">{{order.status}}</span>
+                </td>
+                <td>
+                    <form method="post" class="d-flex gx-5 align-items-center">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_id" value="{{order.id}}">
+
+                        <select class="form-select w-auto ms-2" aria-label="Default select example" name="status">
+                           <option value="processing">Processing</option>
+                           <option value="shipped">Shipped</option>
+                           <option value="delivered">Delivered</option>
+                        </select>
+                    
+                        <button type="submit" class="btn btn-primary ms-3">Change</button>
+                    
+                    
+                    </form>
+
+                </td>
+            </tr>
+
+        {% empty %}
+         <tr><td colspan="7">No order yet!</td></tr>
+        {% endfor %}
+      
+    </tbody>
+</table>
 
 
 {% endblock content %}

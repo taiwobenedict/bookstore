@@ -1,0 +1,73 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<h2 class="mt-5">My Orders</h2>
+
+<table class="table mb-4">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Customer</th>
+            <th scope="col">Book</th>
+            <th scope="col">Quantity</th>
+            <th scope="col">Price</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody id="orders-table">
+        {% for order in orders %}
+            <tr id="order-{{ order.id }}">
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ order.customer.username }}</td>
+                <td>{{ order.book.title }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.total_price }}</td>
+                <td>
+                    <span class="badge rounded-pill order-status text-bg-{% if order.status == 'processing' %}warning{% elif order.status == 'shipped' %}info{% else %}success{% endif %}" data-order-id="{{ order.id }}">
+                        {{ order.status }}
+                    </span>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7">No order yet!</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script type="text/javascript">
+    let url = `ws://${window.location.host}/ws/socket-server/`
+    const storeSocket = new WebSocket(url);
+
+    storeSocket.onmessage = function(e) {
+        let data = JSON.parse(e.data);
+        console.log("Received Data:", data);
+
+        if (data.order_id && data.status) {
+            // Find the order row by order ID
+            let orderRow = document.querySelector(`#order-${data.order_id} .order-status`);
+
+            if (orderRow) {
+                // Update the status text
+                orderRow.textContent = data.status;
+
+                // Change badge color based on status
+                orderRow.classList.remove("text-bg-warning", "text-bg-info", "text-bg-success");
+
+                if (data.status === "processing") {
+                    orderRow.classList.add("text-bg-warning");
+                } else if (data.status === "shipped") {
+                    orderRow.classList.add("text-bg-info");
+                } else {
+                    orderRow.classList.add("text-bg-success");
+                }
+            }
+        }
+    };
+
+    storeSocket.onclose = function(e) {
+        console.error('WebSocket closed unexpectedly');
+    };
+</script>
+
+{% endblock content %}

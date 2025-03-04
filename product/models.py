@@ -21,4 +21,4 @@ class Order(models.Model):
     
     @property
     def total_price(self):
-        return self.book.price * self.quantityco
+        return self.book.price * self.quantity

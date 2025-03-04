@@ -1,7 +1,76 @@
 {% extends "index.html" %}
 
-{% block content %}
 
+{% block content %}
+<style>
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .book-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 4rem;
+        color: white;
+        background-color: rgba(0,0,0, .5);
+        height: 10rem;
+        font-weight: 700;
+    }
+
+@media (min-width: 576px) { 
+        .grid {
+            grid-template-columns: 1fr 1fr;
+
+        }
+ }
+
+
+@media (min-width: 768px) { 
+
+    .grid {
+        grid-template-columns: 1fr 1fr 1fr;
+
+    }
+ }
+
+
+@media (min-width: 992px) { 
+
+    .grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+
+    }
+ }
+
+
+</style>
+
+<div class="grid">
+
+    {% for book in books %}
+        <div class="card">
+            <div class="book-image">
+                {{book.title | slice:1}}
+            </div>
+            <div class="card-body">
+            <h5 class="card-title">{{book.title}}</h5>
+            <p class="card-text">{{book.description}}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold">${{book.price}}</span>
+                <a href="{% url "book" book.id %}" class="btn btn-primary">Buy Now</a>
+            </div>
+            </div>
+        </div>
+
+    {% empty %}
+    <p>No book in store</p>
+        
+    {% endfor %}
+</div>
 
 
 

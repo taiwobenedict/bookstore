@@ -3,34 +3,66 @@ from .models import Book, Order
 from django.contrib.auth import login, logout, authenticate
 from django.http import HttpRequest
 from .forms import BookForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 # Create your views here.
 
 
 
 # Admin Dashbo
+@login_required(login_url="login")
 def dashboard(request: HttpRequest):
-    
-    
     
     form = BookForm()
     
-    # Create New Book if it's a POST request
-    if request.method == "POST":
-        form = BookForm(request.POST)
-        if form.is_valid():
-            form.save()
+    status = request.POST.get("status")
+    order_id = request.POST.get("order_id")
     
+    if status and order_id:
+        order = Order.objects.get(id =order_id)
+        order.status = status
+        order.save()
+        
+        # Send WebSocket message to update order status in real-time
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            "orders",
+            {
+                "type": "order_status_update",
+                "order_id": order_id,
+                "status": status,
+            }
+        )
+
+        
+    else:
+        
+    
+        # Create New Book if it's a POST request
+        if request.method == "POST":
+            form = BookForm(request.POST)
+            if form.is_valid():
+                form.save()
+                
+                # Clear form after save
+                form = BookForm()
+        
     
     books = Book.objects.all()
+    orders = Order.objects.all()
     context = {
         "form": form,
-        'books': books
+        'books': books,
+        'orders': orders,
     }
     
     return render(request, "dashboard.html", context=context)
 
 
+# Get All books
 def get_books(request):
     books = Book.objects.all()
     context = {
@@ -39,27 +71,71 @@ def get_books(request):
     return render(request, "book_list.html", context)
 
 
+# Get single book details
 def get_book_details(request, book_id):
     book = Book.objects.get(id=book_id)
-    return render(request, "book.html")
+    stock = list(range(1, book.stock + 1))
+    context = {
+ 
+        'book': book,
+        'stock': stock,
+    }
+    return render(request, "book.html", context=context)
 
 
-def place_order(request: HttpRequest):
-    return render(request, "order_status.html")
+# Place order
+@login_required(login_url="login")
+def place_order(request: HttpRequest, book_id):
+    
+    
+    if request.method == "GET":
+        return redirect(f"/books/{book_id}/")
+    
+    qty = request.POST.get('qty')
+    book = Book.objects.get(id=book_id)
+ 
+    
+    # Create Order for customer
+    Order.objects.create(customer=request.user, book=book, quantity=int(qty))
+    
+    # Update Stock
+    book.stock  = book.stock - int(qty)
+    book.save()
+
+    
+    return redirect("order-status")
 
 
+# Order Status
+@login_required(login_url="login")
 def order_status(request: HttpRequest):
-    return render(request, "order_status.html")
+    
+    orders = Order.objects.filter(customer = request.user)
+    context = {
+        "orders":orders 
+    }
+    return render(request, "order_status.html", context=context)
+
+
+
 
 
 # ======== AUTHENTICATION ==================
 
 # Register Users
-def register_user(request: HttpRequest):
+def register(request: HttpRequest):
 
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("username")
+        
+    user = User.objects.create_user(username=username, password= password)
+    
+    if user:
+        login(request, user)
+        next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "order-status"  
+        return redirect(next_url)
+        
 
     context = {"page": "register"}
 
@@ -80,10 +156,9 @@ def user_login(request: HttpRequest):
         print(user)
         if user:
             login(request, user)
-            if request.user.is_superuser:
-                return redirect("dashboard")
-            else:
-                return redirect("order-staus")
+            next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "order-status"  
+            return redirect(next_url)
+    
         else:
             context = {**context, "error": "Invalid Crendials"}
 
