@@ -124,18 +124,18 @@ def order_status(request: HttpRequest):
 
 # Register Users
 def register(request: HttpRequest):
-
+    
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("username")
         
-    user = User.objects.create_user(username=username, password= password)
+        user = User.objects.create_user(username=username, password= password)
     
-    if user:
-        login(request, user)
-        next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "order-status"  
-        return redirect(next_url)
-        
+        if user:
+            login(request, user)
+            next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "order-status"  
+            return redirect(next_url)
+            
 
     context = {"page": "register"}
 
