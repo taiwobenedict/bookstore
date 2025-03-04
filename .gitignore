@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+*.env
+
+# Django secret key
+*.secret
+
+# Django stuff:
+db.sqlite3
+/media/
+staticfiles/
+
+# Migrations (optional)
+*/migrations/*.py
+*/migrations/*.pyc
+
+# Logs & Debug
+*.log
+logs/
+debug.log
+
+# Local settings
+local_settings.py
+
+# VS Code / JetBrains / PyCharm
+.vscode/
+.idea/
+*.iml
+
+# MacOS / Windows
+.DS_Store
+Thumbs.db
+
+# Docker / Deployment
+*.pid
+celerybeat-schedule
