@@ -14,20 +14,21 @@
 
         <div class="container py-3 px-2">
             <a href="{% url "books" %}" classc="inline-block mx-3">Books</a>
-
+            
             {% if user.is_authenticated %}
-
-                {% if user.is_superuser %}
-                    <a href="{% url "dashboard" %}" class="inline-block mx-3">Dashboard</a>
-                {% endif %}
-                    
+            
+            {% if user.is_superuser %}
+            <a href="{% url "dashboard" %}" class="inline-block mx-3">Dashboard</a>
+            {% endif %}
+            
                 <a href="{% url "order-status" %}" class="inline-block mx-3">My orders</a>
                 <a href="{% url "logout" %}" class="inline-block mx-3">Logout</a>
             {% else %}
                 <a href="{% url "login" %}" class="inline-block mx-3">Login</a>
                 <a href="{% url "register" %}" class="inline-block mx-3">Register</a>
-            {% endif %}
-        </div>
+              {% endif %}
+              <a href="{% url "documentaion" %}" class="inline-block mx-3">Documentation</a>
+          </div>
     </header>
 
     <div class="container">

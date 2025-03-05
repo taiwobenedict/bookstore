@@ -138,7 +138,7 @@ def register(request: HttpRequest):
     
         if user:
             login(request, user)
-            next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "order-status"  
+            next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "books"  
             return redirect(next_url)
             
 
@@ -161,7 +161,7 @@ def user_login(request: HttpRequest):
         print(user)
         if user:
             login(request, user)
-            next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "order-status"  
+            next_url = request.GET.get("next") or request.POST.get("next") or "dashboard" if user.is_superuser else "books"  
             return redirect(next_url)
     
         else:
@@ -175,3 +175,9 @@ def user_login(request: HttpRequest):
 def user_logout(request):
     logout(request)
     return redirect("login")
+
+
+# Documentation 
+def documentation(request):
+    
+    return render(request, 'documentation.html')
