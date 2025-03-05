@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from services.ai import generate_book_summary
+
 
 # Create your views here.
 
@@ -75,10 +77,13 @@ def get_books(request):
 def get_book_details(request, book_id):
     book = Book.objects.get(id=book_id)
     stock = list(range(1, book.stock + 1))
+    summary = generate_book_summary(book.title)
+
     context = {
  
         'book': book,
         'stock': stock,
+        "summary": summary
     }
     return render(request, "book.html", context=context)
 

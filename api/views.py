@@ -32,21 +32,23 @@ def get_book_details(request, book_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def place_order(request):
+    print(request.user.id)
+    request.data['customer'] = request.user.id
     serializer = OrderSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         order = serializer.save()
         # Publish message to NATS
         
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
 
-
+# {"book":2, "quantity":1}
 # GET ORDER STATUS
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_order_status(request, order_id):
-    order = Order.objects.get(id = order_id)
-    serializer = OrderSerializer(order)
+def get_order_status(request):
+    order = Order.objects.filter(customer = request.user)
+    serializer = OrderSerializer(order, many=True)
     return Response(serializer.data)
 
 

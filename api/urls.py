@@ -5,6 +5,6 @@ urlpatterns = [
     path('books/', get_books),
     path('books/<int:book_id>/', get_book_details),
     path('orders/', place_order),
-    path('orders/staus/', get_order_status ),
-    path('book/summary/<int:book_id>/', book_summary ),
+    path('orders/status/', get_order_status ),
+    path('books/summary/<int:book_id>/', book_summary ),
 ]

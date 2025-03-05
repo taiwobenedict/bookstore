@@ -11,7 +11,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'book', 'quantity', 'status', 'total_price']  # Include total_price
+        fields = ['id', 'book', 'quantity', 'status', 'total_price', 'customer']  # Include total_price
 
     def get_total_price(self, obj):
         return obj.total_price  # Calls the @property method in the model
